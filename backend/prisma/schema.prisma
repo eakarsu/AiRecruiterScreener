@@ -1,0 +1,243 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      String   @default("recruiter")
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  jobPostings    JobPosting[]
+  interviews     Interview[]
+  notes          Note[]
+  communications Communication[]
+}
+
+// Job Postings
+model JobPosting {
+  id              String   @id @default(uuid())
+  title           String
+  department      String
+  location        String
+  type            String   // full-time, part-time, contract
+  salaryMin       Int?
+  salaryMax       Int?
+  description     String
+  requirements    String
+  benefits        String?
+  status          String   @default("draft") // draft, active, paused, closed
+  aiGenerated     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdById     String
+  createdBy       User     @relation(fields: [createdById], references: [id])
+
+  // Relations
+  candidates Candidate[]
+  screeningQuestions ScreeningQuestion[]
+}
+
+// Candidates
+model Candidate {
+  id              String   @id @default(uuid())
+  firstName       String
+  lastName        String
+  email           String
+  phone           String?
+  linkedIn        String?
+  portfolio       String?
+  resumeUrl       String?
+  resumeText      String?
+  coverLetter     String?
+  status          String   @default("new") // new, screening, interviewed, offered, hired, rejected
+  source          String?  // linkedin, indeed, referral, direct
+  aiScore         Int?     // 0-100
+  aiSummary       String?
+  aiStrengths     String?
+  aiWeaknesses    String?
+  aiRecommendation String?
+  yearsExperience Int?
+  currentTitle    String?
+  currentCompany  String?
+  skills          String?  // JSON array
+  education       String?  // JSON array
+  expectedSalary  Int?
+  availableDate   DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  jobPostingId    String
+  jobPosting      JobPosting @relation(fields: [jobPostingId], references: [id])
+
+  // Relations
+  interviews      Interview[]
+  screeningAnswers ScreeningAnswer[]
+  notes           Note[]
+  communications  Communication[]
+  assessments     Assessment[]
+}
+
+// Screening Questions
+model ScreeningQuestion {
+  id           String   @id @default(uuid())
+  question     String
+  type         String   // text, multiple_choice, yes_no, rating
+  options      String?  // JSON array for multiple choice
+  required     Boolean  @default(true)
+  aiGenerated  Boolean  @default(false)
+  weight       Int      @default(1)
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  jobPostingId String
+  jobPosting   JobPosting @relation(fields: [jobPostingId], references: [id])
+
+  // Relations
+  answers ScreeningAnswer[]
+}
+
+// Screening Answers
+model ScreeningAnswer {
+  id         String   @id @default(uuid())
+  answer     String
+  aiScore    Int?     // 0-100
+  aiFeedback String?
+  createdAt  DateTime @default(now())
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
+  questionId  String
+  question    ScreeningQuestion @relation(fields: [questionId], references: [id])
+}
+
+// Interviews
+model Interview {
+  id             String   @id @default(uuid())
+  scheduledAt    DateTime
+  duration       Int      @default(60) // minutes
+  type           String   // phone, video, onsite, technical
+  status         String   @default("scheduled") // scheduled, completed, cancelled, no_show
+  location       String?
+  meetingLink    String?
+  notes          String?
+  overallRating  Int?     // 1-5
+  technicalScore Int?     // 0-100
+  culturalScore  Int?     // 0-100
+  aiSummary      String?
+  aiQuestions    String?  // JSON array - AI suggested questions
+  feedback       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  candidateId    String
+  candidate      Candidate @relation(fields: [candidateId], references: [id])
+  interviewerId  String
+  interviewer    User     @relation(fields: [interviewerId], references: [id])
+}
+
+// Candidate Notes
+model Note {
+  id          String   @id @default(uuid())
+  content     String
+  type        String   @default("general") // general, feedback, follow_up
+  isPrivate   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+}
+
+// Communications (emails, messages)
+model Communication {
+  id          String   @id @default(uuid())
+  type        String   // email, sms, call
+  direction   String   // inbound, outbound
+  subject     String?
+  content     String
+  status      String   @default("sent") // draft, sent, delivered, read, failed
+  aiGenerated Boolean  @default(false)
+  sentAt      DateTime?
+  createdAt   DateTime @default(now())
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+// Skills Assessments
+model Assessment {
+  id           String   @id @default(uuid())
+  name         String
+  type         String   // technical, personality, cognitive
+  status       String   @default("pending") // pending, in_progress, completed
+  score        Int?     // 0-100
+  maxScore     Int      @default(100)
+  duration     Int?     // minutes taken
+  timeLimit    Int      @default(60) // minutes allowed
+  questions    String?  // JSON array
+  answers      String?  // JSON array
+  aiAnalysis   String?
+  startedAt    DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime @default(now())
+  candidateId  String
+  candidate    Candidate @relation(fields: [candidateId], references: [id])
+}
+
+// Email Templates
+model EmailTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  subject     String
+  body        String
+  type        String   // application_received, interview_invite, rejection, offer
+  variables   String?  // JSON array of available variables
+  aiGenerated Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Pipeline Stages
+model PipelineStage {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  color       String   @default("#3B82F6")
+  order       Int
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+// Analytics Events
+model AnalyticsEvent {
+  id        String   @id @default(uuid())
+  eventType String
+  entityType String
+  entityId  String
+  metadata  String?  // JSON
+  createdAt DateTime @default(now())
+}
+
+// AI Prompts/Templates
+model AIPrompt {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  prompt      String
+  type        String   // resume_analysis, question_generation, email_writing, interview_summary
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
