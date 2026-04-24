@@ -13,6 +13,7 @@ import {
   ExternalLink,
   Star,
 } from 'lucide-react';
+import { useToast } from '../components/Toast';
 
 const statusColors = {
   scheduled: 'badge-blue',
@@ -35,6 +36,7 @@ const InterviewDetail = () => {
     feedback: '',
   });
   const [submitting, setSubmitting] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     fetchInterview();
@@ -44,9 +46,15 @@ const InterviewDetail = () => {
     try {
       const response = await interviewsApi.getById(id);
       setInterview(response.data);
-      if (response.data.notes) {
-        setFeedback((prev) => ({ ...prev, notes: response.data.notes }));
-      }
+      const d = response.data;
+      setFeedback((prev) => ({
+        ...prev,
+        notes: d.notes || prev.notes,
+        feedback: d.feedback || prev.feedback,
+        overallRating: d.overallRating || prev.overallRating,
+        technicalScore: d.technicalScore ?? prev.technicalScore,
+        culturalScore: d.culturalScore ?? prev.culturalScore,
+      }));
     } catch (error) {
       console.error('Failed to fetch interview:', error);
     } finally {
@@ -64,7 +72,7 @@ const InterviewDetail = () => {
       }));
     } catch (error) {
       console.error('Failed to generate questions:', error);
-      alert('Failed to generate questions');
+      toast.error('Failed to generate questions');
     } finally {
       setGeneratingQuestions(false);
     }
@@ -75,10 +83,10 @@ const InterviewDetail = () => {
     try {
       await interviewsApi.submitFeedback(id, feedback);
       fetchInterview();
-      alert('Feedback submitted successfully!');
+      toast.success('Feedback submitted successfully!');
     } catch (error) {
       console.error('Failed to submit feedback:', error);
-      alert('Failed to submit feedback');
+      toast.error('Failed to submit feedback');
     } finally {
       setSubmitting(false);
     }

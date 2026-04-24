@@ -2,21 +2,9 @@ import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  LayoutDashboard,
-  Briefcase,
-  Users,
-  Calendar,
-  Mail,
-  ClipboardCheck,
-  BarChart3,
-  FileText,
-  GitBranch,
-  LogOut,
-  Menu,
-  X,
-  User,
-  ChevronDown,
-  Bot,
+  LayoutDashboard, Briefcase, Users, Calendar, Mail, ClipboardCheck,
+  BarChart3, FileText, GitBranch, LogOut, Menu, X, User, ChevronDown,
+  Bot, Sparkles, Settings,
 } from 'lucide-react';
 
 const navItems = [
@@ -29,6 +17,7 @@ const navItems = [
   { path: '/pipeline', label: 'Pipeline', icon: GitBranch },
   { path: '/analytics', label: 'Analytics', icon: BarChart3 },
   { path: '/templates', label: 'Email Templates', icon: FileText },
+  { path: '/hr', label: 'HR AI Tools', icon: Sparkles },
 ];
 
 const Layout = () => {
@@ -109,7 +98,15 @@ const Layout = () => {
             </button>
 
             {userMenuOpen && (
-              <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1 animate-fadeIn">
+              <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1 animate-fadeIn z-50">
+                <button
+                  onClick={() => { setUserMenuOpen(false); navigate('/profile'); }}
+                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                  <Settings className="w-4 h-4" />
+                  Profile & Settings
+                </button>
+                <div className="border-t border-gray-100 my-1" />
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"

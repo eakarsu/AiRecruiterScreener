@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../services/api';
+import api, { authApi } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -61,11 +61,17 @@ export const AuthProvider = ({ children }) => {
     return user;
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    delete api.defaults.headers.common['Authorization'];
-    setToken(null);
-    setUser(null);
+  const logout = async () => {
+    try {
+      if (token) {
+        await authApi.logout().catch(() => {});
+      }
+    } finally {
+      localStorage.removeItem('token');
+      delete api.defaults.headers.common['Authorization'];
+      setToken(null);
+      setUser(null);
+    }
   };
 
   const getDemoCredentials = async () => {
@@ -80,6 +86,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    fetchUser,
     getDemoCredentials,
     isAuthenticated: !!user,
   };

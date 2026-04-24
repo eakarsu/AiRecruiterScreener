@@ -9,15 +9,24 @@ datasource db {
 
 // User Management
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  firstName String
-  lastName  String
-  role      String   @default("recruiter")
-  avatar    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                     String   @id @default(uuid())
+  email                  String   @unique
+  password               String
+  firstName              String
+  lastName               String
+  role                   String   @default("recruiter") // admin, recruiter, hiring_manager, interviewer
+  avatar                 String?
+  phone                  String?
+  department             String?
+  title                  String?
+  bio                    String?
+  emailVerified          Boolean  @default(false)
+  emailVerificationToken String?
+  passwordResetToken     String?
+  passwordResetExpires   DateTime?
+  lastLoginAt            DateTime?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 
   // Relations
   jobPostings    JobPosting[]
@@ -87,6 +96,8 @@ model Candidate {
   notes           Note[]
   communications  Communication[]
   assessments     Assessment[]
+  cultureFitScores CultureFitScore[]
+  interviewSchedules InterviewSchedule[]
 }
 
 // Screening Questions
@@ -240,4 +251,177 @@ model AIPrompt {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// Employee (for HR features)
+model Employee {
+  id              String   @id @default(uuid())
+  firstName       String
+  lastName        String
+  email           String   @unique
+  phone           String?
+  department      String
+  title           String
+  managerId       String?
+  manager         Employee?  @relation("EmployeeManager", fields: [managerId], references: [id])
+  directReports   Employee[] @relation("EmployeeManager")
+  hireDate        DateTime
+  salary          Int
+  status          String   @default("active") // active, on_leave, terminated
+  location        String?
+  skills          String?  // JSON array
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  performanceReviews  PerformanceReview[]
+  sentimentAnalyses   SentimentAnalysis[]
+  exitInterviews      ExitInterview[]
+  salaryBenchmarks    SalaryBenchmark[]
+  cultureFitScores    CultureFitScore[]
+}
+
+// AI Bias Detection Report
+model BiasReport {
+  id            String   @id @default(uuid())
+  targetType    String   // job_description, candidate_review, performance_review
+  targetId      String
+  content       String   // The content that was analyzed
+  biasScore     Int      // 0-100 (0 = no bias, 100 = high bias)
+  biasTypes     String?  // JSON array of bias types found
+  suggestions   String?  // JSON array of suggestions
+  aiAnalysis    String?  // Detailed AI analysis
+  status        String   @default("pending") // pending, reviewed, resolved
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// Employee Sentiment Analysis
+model SentimentAnalysis {
+  id              String   @id @default(uuid())
+  employeeId      String
+  employee        Employee @relation(fields: [employeeId], references: [id])
+  source          String   // survey, feedback, review, chat
+  content         String
+  sentimentScore  Int      // -100 to 100 (negative to positive)
+  emotions        String?  // JSON array of detected emotions
+  themes          String?  // JSON array of themes
+  aiAnalysis      String?
+  actionItems     String?  // JSON array of recommended actions
+  createdAt       DateTime @default(now())
+}
+
+// Culture Fit Scoring
+model CultureFitScore {
+  id              String   @id @default(uuid())
+  candidateId     String?
+  candidate       Candidate? @relation(fields: [candidateId], references: [id])
+  employeeId      String?
+  employee        Employee? @relation(fields: [employeeId], references: [id])
+  overallScore    Int      // 0-100
+  dimensions      String?  // JSON object with dimension scores
+  strengths       String?  // JSON array
+  concerns        String?  // JSON array
+  aiAnalysis      String?
+  recommendation  String?  // strong_fit, good_fit, moderate_fit, poor_fit
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Performance Review
+model PerformanceReview {
+  id              String   @id @default(uuid())
+  employeeId      String
+  employee        Employee @relation(fields: [employeeId], references: [id])
+  reviewPeriod    String   // Q1 2024, Annual 2024, etc.
+  reviewType      String   // quarterly, annual, probation, project
+  overallRating   Int      // 1-5
+  goals           String?  // JSON array of goals
+  achievements    String?  // JSON array
+  areasForImprovement String? // JSON array
+  competencyScores String? // JSON object
+  managerComments String?
+  employeeComments String?
+  aiGenerated     Boolean  @default(false)
+  aiSummary       String?
+  aiRecommendations String? // JSON array
+  status          String   @default("draft") // draft, submitted, approved, acknowledged
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Salary Benchmarking
+model SalaryBenchmark {
+  id              String   @id @default(uuid())
+  title           String
+  department      String
+  location        String
+  yearsExperience Int
+  employeeId      String?
+  employee        Employee? @relation(fields: [employeeId], references: [id])
+  currentSalary   Int?
+  marketMin       Int
+  marketMedian    Int
+  marketMax       Int
+  percentile      Int?     // Where current salary falls
+  competitiveness String?  // below_market, at_market, above_market
+  aiAnalysis      String?
+  recommendations String?  // JSON array
+  dataSource      String?  // market data source
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Exit Interview
+model ExitInterview {
+  id              String   @id @default(uuid())
+  employeeId      String
+  employee        Employee @relation(fields: [employeeId], references: [id])
+  exitDate        DateTime
+  reason          String   // resignation, termination, retirement, layoff
+  feedback        String?
+  questionsAnswers String? // JSON array of Q&A
+  satisfactionScore Int?   // 1-10
+  wouldRecommend  Boolean?
+  aiSummary       String?
+  keyThemes       String?  // JSON array
+  sentimentScore  Int?     // -100 to 100
+  actionableInsights String? // JSON array
+  status          String   @default("scheduled") // scheduled, completed, analyzed
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Org Chart Configuration
+model OrgChart {
+  id              String   @id @default(uuid())
+  name            String
+  description     String?
+  structure       String   // JSON representation of org structure
+  aiOptimizations String?  // JSON array of AI suggestions
+  metrics         String?  // JSON object with org metrics
+  spanOfControl   Float?   // Average direct reports per manager
+  layerCount      Int?     // Number of hierarchy levels
+  status          String   @default("current") // current, proposed, archived
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Interview Schedule (Smart Scheduling)
+model InterviewSchedule {
+  id              String   @id @default(uuid())
+  candidateId     String
+  candidate       Candidate @relation(fields: [candidateId], references: [id])
+  interviewers    String   // JSON array of interviewer IDs
+  proposedSlots   String   // JSON array of proposed time slots
+  selectedSlot    DateTime?
+  duration        Int      @default(60)
+  type            String   // phone, video, onsite, panel
+  location        String?
+  meetingLink     String?
+  aiSuggestions   String?  // JSON - AI recommended optimal times
+  conflictAnalysis String? // JSON - Detected conflicts
+  status          String   @default("pending") // pending, confirmed, rescheduled, cancelled
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

@@ -13,6 +13,8 @@ import {
   ChevronRight,
   Award,
 } from 'lucide-react';
+import { useToast } from '../components/Toast';
+import { useModal } from '../components/Modal';
 
 const statusColors = {
   draft: 'badge-gray',
@@ -87,6 +89,8 @@ const JobDetail = () => {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const toast = useToast();
+  const { confirmDanger } = useModal();
 
   useEffect(() => {
     fetchJob();
@@ -108,23 +112,24 @@ const JobDetail = () => {
     try {
       await jobsApi.generateQuestions(id, { count: 5 });
       fetchJob();
-      alert('Screening questions generated successfully!');
+      toast.success('Screening questions generated successfully!');
     } catch (error) {
       console.error('Failed to generate questions:', error);
-      alert('Failed to generate questions');
+      toast.error('Failed to generate questions');
     } finally {
       setGenerating(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this job posting?')) return;
+    const confirmed = await confirmDanger('Delete Job Posting', 'Are you sure you want to delete this job posting? This action cannot be undone.');
+    if (!confirmed) return;
     try {
       await jobsApi.delete(id);
       navigate('/jobs');
     } catch (error) {
       console.error('Failed to delete job:', error);
-      alert('Failed to delete job');
+      toast.error('Failed to delete job');
     }
   };
 

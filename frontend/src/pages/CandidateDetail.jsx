@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { candidatesApi, interviewsApi, communicationsApi } from '../services/api';
+import { useToast } from '../components/Toast';
+import { useModal } from '../components/Modal';
 import {
   ArrowLeft,
   Mail,
@@ -44,7 +46,7 @@ const TabButton = ({ active, onClick, children }) => (
   </button>
 );
 
-const ScheduleInterviewModal = ({ isOpen, onClose, candidateId, onSave }) => {
+const ScheduleInterviewModal = ({ isOpen, onClose, candidateId, onSave, toast }) => {
   const [formData, setFormData] = useState({
     scheduledAt: '',
     duration: 60,
@@ -63,7 +65,7 @@ const ScheduleInterviewModal = ({ isOpen, onClose, candidateId, onSave }) => {
       onClose();
     } catch (error) {
       console.error('Failed to schedule interview:', error);
-      alert('Failed to schedule interview');
+      toast.error('Failed to schedule interview');
     } finally {
       setLoading(false);
     }
@@ -170,6 +172,8 @@ const CandidateDetail = () => {
   const [newNote, setNewNote] = useState('');
   const [addingNote, setAddingNote] = useState(false);
   const [generatingEmail, setGeneratingEmail] = useState(false);
+  const toast = useToast();
+  const { showContent } = useModal();
 
   useEffect(() => {
     fetchCandidate();
@@ -191,10 +195,10 @@ const CandidateDetail = () => {
     try {
       const response = await candidatesApi.analyzeResume(id);
       setCandidate(response.data.candidate);
-      alert('Resume analyzed successfully!');
+      toast.success('Resume analyzed successfully!');
     } catch (error) {
       console.error('Failed to analyze resume:', error);
-      alert('Failed to analyze resume. Make sure the candidate has resume text.');
+      toast.error('Failed to analyze resume. Make sure the candidate has resume text.');
     } finally {
       setAnalyzing(false);
     }
@@ -221,10 +225,10 @@ const CandidateDetail = () => {
         candidateId: id,
         templateType,
       });
-      alert(`Generated Email:\n\nSubject: ${response.data.subject}\n\n${response.data.body}`);
+      showContent('Generated Email', `Subject: ${response.data.subject}\n\n${response.data.body}`);
     } catch (error) {
       console.error('Failed to generate email:', error);
-      alert('Failed to generate email');
+      toast.error('Failed to generate email');
     } finally {
       setGeneratingEmail(false);
     }
@@ -715,6 +719,7 @@ const CandidateDetail = () => {
         onClose={() => setShowInterviewModal(false)}
         candidateId={id}
         onSave={fetchCandidate}
+        toast={toast}
       />
     </div>
   );

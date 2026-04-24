@@ -1,10 +1,13 @@
 const prisma = require('../config/database');
 const aiService = require('../services/aiService');
+const { parsePagination, parseSort, paginatedResponse, toCSV } = require('../utils/pagination');
 
-// Get all candidates
+// Get all candidates with pagination
 const getCandidates = async (req, res) => {
   try {
-    const { status, jobId, search, sortBy, sortOrder } = req.query;
+    const { status, jobId, search } = req.query;
+    const { page, limit, skip } = parsePagination(req.query);
+    const orderBy = parseSort(req.query, ['createdAt', 'firstName', 'lastName', 'aiScore', 'status', 'yearsExperience', 'currentTitle']);
 
     const where = {};
     if (status) where.status = status;
@@ -18,32 +21,30 @@ const getCandidates = async (req, res) => {
       ];
     }
 
-    const orderBy = {};
-    if (sortBy) {
-      orderBy[sortBy] = sortOrder || 'desc';
-    } else {
-      orderBy.createdAt = 'desc';
-    }
+    const [candidates, total] = await Promise.all([
+      prisma.candidate.findMany({
+        where,
+        include: {
+          jobPosting: {
+            select: { id: true, title: true, department: true },
+          },
+          interviews: {
+            select: { id: true, scheduledAt: true, status: true, type: true },
+            orderBy: { scheduledAt: 'desc' },
+            take: 1,
+          },
+          _count: {
+            select: { notes: true, communications: true, assessments: true },
+          },
+        },
+        orderBy,
+        skip,
+        take: limit,
+      }),
+      prisma.candidate.count({ where }),
+    ]);
 
-    const candidates = await prisma.candidate.findMany({
-      where,
-      include: {
-        jobPosting: {
-          select: { id: true, title: true, department: true },
-        },
-        interviews: {
-          select: { id: true, scheduledAt: true, status: true, type: true },
-          orderBy: { scheduledAt: 'desc' },
-          take: 1,
-        },
-        _count: {
-          select: { notes: true, communications: true, assessments: true },
-        },
-      },
-      orderBy,
-    });
-
-    res.json(candidates);
+    res.json(paginatedResponse(candidates, total, page, limit));
   } catch (error) {
     console.error('Get candidates error:', error);
     res.status(500).json({ error: 'Failed to fetch candidates' });
@@ -102,44 +103,22 @@ const getCandidate = async (req, res) => {
 const createCandidate = async (req, res) => {
   try {
     const {
-      firstName,
-      lastName,
-      email,
-      phone,
-      linkedIn,
-      portfolio,
-      resumeText,
-      coverLetter,
-      source,
-      jobPostingId,
-      currentTitle,
-      currentCompany,
-      yearsExperience,
-      expectedSalary,
+      firstName, lastName, email, phone, linkedIn, portfolio,
+      resumeText, coverLetter, source, jobPostingId,
+      currentTitle, currentCompany, yearsExperience, expectedSalary,
     } = req.body;
 
     const candidate = await prisma.candidate.create({
       data: {
-        firstName,
-        lastName,
-        email,
-        phone,
-        linkedIn,
-        portfolio,
-        resumeText,
-        coverLetter,
-        source,
-        jobPostingId,
-        currentTitle,
-        currentCompany,
+        firstName, lastName, email, phone, linkedIn, portfolio,
+        resumeText, coverLetter, source, jobPostingId,
+        currentTitle, currentCompany,
         yearsExperience: yearsExperience ? parseInt(yearsExperience) : null,
         expectedSalary: expectedSalary ? parseInt(expectedSalary) : null,
         status: 'new',
       },
       include: {
-        jobPosting: {
-          select: { id: true, title: true },
-        },
+        jobPosting: { select: { id: true, title: true } },
       },
     });
 
@@ -156,20 +135,14 @@ const updateCandidate = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    if (updateData.yearsExperience) {
-      updateData.yearsExperience = parseInt(updateData.yearsExperience);
-    }
-    if (updateData.expectedSalary) {
-      updateData.expectedSalary = parseInt(updateData.expectedSalary);
-    }
+    if (updateData.yearsExperience) updateData.yearsExperience = parseInt(updateData.yearsExperience);
+    if (updateData.expectedSalary) updateData.expectedSalary = parseInt(updateData.expectedSalary);
 
     const candidate = await prisma.candidate.update({
       where: { id },
       data: updateData,
       include: {
-        jobPosting: {
-          select: { id: true, title: true },
-        },
+        jobPosting: { select: { id: true, title: true } },
       },
     });
 
@@ -184,13 +157,85 @@ const updateCandidate = async (req, res) => {
 const deleteCandidate = async (req, res) => {
   try {
     const { id } = req.params;
-
     await prisma.candidate.delete({ where: { id } });
-
     res.json({ message: 'Candidate deleted successfully' });
   } catch (error) {
     console.error('Delete candidate error:', error);
     res.status(500).json({ error: 'Failed to delete candidate' });
+  }
+};
+
+// Bulk delete candidates
+const bulkDeleteCandidates = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: 'ids array is required' });
+    }
+
+    const result = await prisma.candidate.deleteMany({
+      where: { id: { in: ids } },
+    });
+
+    res.json({ message: `${result.count} candidates deleted`, count: result.count });
+  } catch (error) {
+    console.error('Bulk delete candidates error:', error);
+    res.status(500).json({ error: 'Failed to bulk delete candidates' });
+  }
+};
+
+// Bulk update candidates
+const bulkUpdateCandidates = async (req, res) => {
+  try {
+    const { ids, data } = req.body;
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: 'ids array is required' });
+    }
+
+    const result = await prisma.candidate.updateMany({
+      where: { id: { in: ids } },
+      data,
+    });
+
+    res.json({ message: `${result.count} candidates updated`, count: result.count });
+  } catch (error) {
+    console.error('Bulk update candidates error:', error);
+    res.status(500).json({ error: 'Failed to bulk update candidates' });
+  }
+};
+
+// Export candidates as CSV
+const exportCandidatesCSV = async (req, res) => {
+  try {
+    const candidates = await prisma.candidate.findMany({
+      include: {
+        jobPosting: { select: { title: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const columns = [
+      { key: 'firstName', label: 'First Name' },
+      { key: 'lastName', label: 'Last Name' },
+      { key: 'email', label: 'Email' },
+      { key: 'phone', label: 'Phone' },
+      { key: 'currentTitle', label: 'Title' },
+      { key: 'currentCompany', label: 'Company' },
+      { key: 'yearsExperience', label: 'Years Exp' },
+      { key: 'status', label: 'Status' },
+      { key: 'source', label: 'Source' },
+      { key: 'aiScore', label: 'AI Score' },
+      { key: 'jobPosting.title', label: 'Job' },
+      { key: 'createdAt', label: 'Applied At' },
+    ];
+
+    const csv = toCSV(candidates, columns);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=candidates.csv');
+    res.send(csv);
+  } catch (error) {
+    console.error('Export candidates CSV error:', error);
+    res.status(500).json({ error: 'Failed to export candidates' });
   }
 };
 
@@ -204,20 +249,11 @@ const analyzeResume = async (req, res) => {
       include: { jobPosting: true },
     });
 
-    if (!candidate) {
-      return res.status(404).json({ error: 'Candidate not found' });
-    }
+    if (!candidate) return res.status(404).json({ error: 'Candidate not found' });
+    if (!candidate.resumeText) return res.status(400).json({ error: 'No resume text available' });
 
-    if (!candidate.resumeText) {
-      return res.status(400).json({ error: 'No resume text available' });
-    }
+    const analysis = await aiService.analyzeResume(candidate.resumeText, candidate.jobPosting.description);
 
-    const analysis = await aiService.analyzeResume(
-      candidate.resumeText,
-      candidate.jobPosting.description
-    );
-
-    // Update candidate with AI analysis
     const updated = await prisma.candidate.update({
       where: { id },
       data: {
@@ -248,21 +284,13 @@ const rankCandidates = async (req, res) => {
 
     const job = await prisma.jobPosting.findUnique({
       where: { id: jobId },
-      include: {
-        candidates: true,
-      },
+      include: { candidates: true },
     });
 
-    if (!job) {
-      return res.status(404).json({ error: 'Job not found' });
-    }
-
-    if (job.candidates.length === 0) {
-      return res.status(400).json({ error: 'No candidates to rank' });
-    }
+    if (!job) return res.status(404).json({ error: 'Job not found' });
+    if (job.candidates.length === 0) return res.status(400).json({ error: 'No candidates to rank' });
 
     const rankings = await aiService.rankCandidates(job.candidates, job.description);
-
     res.json(rankings);
   } catch (error) {
     console.error('Rank candidates error:', error);
@@ -285,9 +313,7 @@ const addNote = async (req, res) => {
         authorId: req.user.id,
       },
       include: {
-        author: {
-          select: { id: true, firstName: true, lastName: true },
-        },
+        author: { select: { id: true, firstName: true, lastName: true } },
       },
     });
 
@@ -304,6 +330,9 @@ module.exports = {
   createCandidate,
   updateCandidate,
   deleteCandidate,
+  bulkDeleteCandidates,
+  bulkUpdateCandidates,
+  exportCandidatesCSV,
   analyzeResume,
   rankCandidates,
   addNote,
