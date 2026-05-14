@@ -73,4 +73,13 @@ router.get('/skills/assessments', hrController.getAssessments);
 router.post('/skills/assess', hrController.assessSkills);
 router.delete('/skills/assessments/:id', hrController.deleteAssessment);
 
+// ==================== AI: SKILLS GAP / INTERVIEW / RETENTION RISK ====================
+router.post('/skills-gap-analysis', hrController.skillsGapAnalysis);
+router.post('/interview-analysis', hrController.analyzeInterviewTranscript);
+router.post('/retention-risk', hrController.predictRetentionRisk);
+
+// Apply pass 4 (mechanical backlog)
+router.post('/offer-letter', hrController.generateOfferLetter);
+router.post('/dei-metrics', hrController.deiMetrics);
+
 module.exports = router;

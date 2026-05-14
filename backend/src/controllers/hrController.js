@@ -1085,3 +1085,82 @@ exports.deleteAssessment = async (req, res) => {
     res.status(500).json({ error: 'Failed to delete assessment' });
   }
 };
+
+// ==================== AI: SKILLS GAP ANALYSIS ====================
+exports.skillsGapAnalysis = async (req, res) => {
+  try {
+    const { teamSkills, targetCapabilities } = req.body;
+    if (!teamSkills || !targetCapabilities) {
+      return res.status(400).json({ error: 'teamSkills and targetCapabilities are required' });
+    }
+    const analysis = await aiService.skillsGapAnalysis(teamSkills, targetCapabilities);
+    res.json({ analysis });
+  } catch (error) {
+    console.error('Skills Gap Analysis Error:', error);
+    res.status(500).json({ error: error.message || 'Failed to run skills gap analysis' });
+  }
+};
+
+// ==================== AI: INTERVIEW ANALYSIS ====================
+exports.analyzeInterviewTranscript = async (req, res) => {
+  try {
+    const { transcript, jobDescription, candidateName } = req.body;
+    if (!transcript || !transcript.trim()) {
+      return res.status(400).json({ error: 'transcript is required' });
+    }
+    const analysis = await aiService.analyzeInterview(transcript, jobDescription || '', candidateName || '');
+    res.json({ analysis });
+  } catch (error) {
+    console.error('Interview Analysis Error:', error);
+    res.status(500).json({ error: error.message || 'Failed to analyze interview' });
+  }
+};
+
+// ==================== AI: RETENTION RISK PREDICTION ====================
+exports.predictRetentionRisk = async (req, res) => {
+  try {
+    const { employeeProfile, contextSignals } = req.body;
+    if (!employeeProfile) return res.status(400).json({ error: 'employeeProfile is required' });
+    const risk = await aiService.predictRetentionRisk(employeeProfile, contextSignals || {});
+    res.json({ risk });
+  } catch (error) {
+    console.error('Retention Risk Error:', error);
+    res.status(500).json({ error: error.message || 'Failed to predict retention risk' });
+  }
+};
+
+// ==================== AI: OFFER LETTER GENERATOR (apply pass 4) ====================
+exports.generateOfferLetter = async (req, res) => {
+  if (!process.env.OPENROUTER_API_KEY) {
+    return res.status(503).json({ error: 'AI service unavailable: OPENROUTER_API_KEY is not configured.' });
+  }
+  try {
+    const { offerInput } = req.body;
+    if (!offerInput || typeof offerInput !== 'object') {
+      return res.status(400).json({ error: 'offerInput object is required (candidateName, role, baseSalary, startDate, etc.).' });
+    }
+    const offer = await aiService.generateOfferLetter(offerInput);
+    res.json({ offer });
+  } catch (error) {
+    console.error('Offer Letter Error:', error);
+    res.status(500).json({ error: error.message || 'Failed to generate offer letter' });
+  }
+};
+
+// ==================== AI: DEI METRICS AGGREGATOR (apply pass 4) ====================
+exports.deiMetrics = async (req, res) => {
+  if (!process.env.OPENROUTER_API_KEY) {
+    return res.status(503).json({ error: 'AI service unavailable: OPENROUTER_API_KEY is not configured.' });
+  }
+  try {
+    const { workforceSnapshot, hiringFunnel } = req.body;
+    if (!workforceSnapshot && !hiringFunnel) {
+      return res.status(400).json({ error: 'workforceSnapshot and/or hiringFunnel are required.' });
+    }
+    const metrics = await aiService.deiMetricsAggregate(workforceSnapshot, hiringFunnel);
+    res.json({ metrics });
+  } catch (error) {
+    console.error('DEI Metrics Error:', error);
+    res.status(500).json({ error: error.message || 'Failed to aggregate DEI metrics' });
+  }
+};

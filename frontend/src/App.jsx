@@ -33,6 +33,35 @@ import InterviewScheduler from './pages/InterviewScheduler';
 import OrgChart from './pages/OrgChart';
 import SkillsAssessor from './pages/SkillsAssessor';
 import JobDescriptionWriter from './pages/JobDescriptionWriter';
+import SkillsGapAnalysis from './pages/SkillsGapAnalysis';
+import InterviewAnalysis from './pages/InterviewAnalysis';
+import RetentionRisk from './pages/RetentionRisk';
+import OfferLetter from './pages/OfferLetter';
+import DEIMetrics from './pages/DEIMetrics';
+
+// === Batch 07 Gaps & Frontend Mounts ===
+import CfUnbiasedResumeRanking from './pages/CfUnbiasedResumeRanking';
+import CfInterviewIntelligence from './pages/CfInterviewIntelligence';
+import CfPeerFeedbackAggregator from './pages/CfPeerFeedbackAggregator';
+import CfDeiMetricsDashboard from './pages/CfDeiMetricsDashboard';
+import CfRetentionRiskPrediction from './pages/CfRetentionRiskPrediction';
+import CfSkillstoroleMatcher from './pages/CfSkillstoroleMatcher';
+import GapNoResumescreeningParseAndScore from './pages/GapNoResumescreeningParseAndScore';
+import GapNoInterviewanalysisTranscribeSentimentRe from './pages/GapNoInterviewanalysisTranscribeSentimentRe';
+import GapNoCulturefitassessment from './pages/GapNoCulturefitassessment';
+import GapNoBiasdetectionInHiringFunnel from './pages/GapNoBiasdetectionInHiringFunnel';
+import GapNoSalarybenchmarkRoute from './pages/GapNoSalarybenchmarkRoute';
+import GapNoSkillsgapanalysisForHires from './pages/GapNoSkillsgapanalysisForHires';
+import GapNoResumeParserfileIngestionRoute from './pages/GapNoResumeParserfileIngestionRoute';
+import GapNoCalendarIntegrationForInterviewSchedu from './pages/GapNoCalendarIntegrationForInterviewSchedu';
+import GapNoOfferLetterGenerator from './pages/GapNoOfferLetterGenerator';
+import GapNoOnboardingChecklistWorkflow from './pages/GapNoOnboardingChecklistWorkflow';
+import GapNoPerformanceReviewModule from './pages/GapNoPerformanceReviewModule';
+import GapNoDeiMetricsDashboard from './pages/GapNoDeiMetricsDashboard';
+import GapNoExternalJobboardPostingLinkedinIndeed from './pages/GapNoExternalJobboardPostingLinkedinIndeed';
+import GapNoNotificationsemailAutomationRoutes from './pages/GapNoNotificationsemailAutomationRoutes';
+// === End Batch 07 ===
+
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -103,8 +132,35 @@ const AppRoutes = () => {
         <Route path="hr/org-chart" element={<OrgChart />} />
         <Route path="hr/skills-assessor" element={<SkillsAssessor />} />
         <Route path="hr/job-description-writer" element={<JobDescriptionWriter />} />
+        <Route path="hr/skills-gap-analysis" element={<SkillsGapAnalysis />} />
+        <Route path="hr/interview-analysis" element={<InterviewAnalysis />} />
+        <Route path="hr/retention-risk" element={<RetentionRisk />} />
+        <Route path="hr/offer-letter" element={<OfferLetter />} />
+        <Route path="hr/dei-metrics" element={<DEIMetrics />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
+          // === Batch 07 Gaps & Frontend Mounts ===
+          <Route path='/cf-unbiased-resume-ranking' element={<CfUnbiasedResumeRanking />} />
+          <Route path='/cf-interview-intelligence' element={<CfInterviewIntelligence />} />
+          <Route path='/cf-peer-feedback-aggregator' element={<CfPeerFeedbackAggregator />} />
+          <Route path='/cf-dei-metrics-dashboard' element={<CfDeiMetricsDashboard />} />
+          <Route path='/cf-retention-risk-prediction' element={<CfRetentionRiskPrediction />} />
+          <Route path='/cf-skillstorole-matcher' element={<CfSkillstoroleMatcher />} />
+          <Route path='/gap-no-resumescreening-parse-and-score' element={<GapNoResumescreeningParseAndScore />} />
+          <Route path='/gap-no-interviewanalysis-transcribe-sentiment-re' element={<GapNoInterviewanalysisTranscribeSentimentRe />} />
+          <Route path='/gap-no-culturefitassessment' element={<GapNoCulturefitassessment />} />
+          <Route path='/gap-no-biasdetection-in-hiring-funnel' element={<GapNoBiasdetectionInHiringFunnel />} />
+          <Route path='/gap-no-salarybenchmark-route' element={<GapNoSalarybenchmarkRoute />} />
+          <Route path='/gap-no-skillsgapanalysis-for-hires' element={<GapNoSkillsgapanalysisForHires />} />
+          <Route path='/gap-no-resume-parserfile-ingestion-route' element={<GapNoResumeParserfileIngestionRoute />} />
+          <Route path='/gap-no-calendar-integration-for-interview-schedu' element={<GapNoCalendarIntegrationForInterviewSchedu />} />
+          <Route path='/gap-no-offer-letter-generator' element={<GapNoOfferLetterGenerator />} />
+          <Route path='/gap-no-onboarding-checklist-workflow' element={<GapNoOnboardingChecklistWorkflow />} />
+          <Route path='/gap-no-performance-review-module' element={<GapNoPerformanceReviewModule />} />
+          <Route path='/gap-no-dei-metrics-dashboard' element={<GapNoDeiMetricsDashboard />} />
+          <Route path='/gap-no-external-jobboard-posting-linkedin-indeed' element={<GapNoExternalJobboardPostingLinkedinIndeed />} />
+          <Route path='/gap-no-notificationsemail-automation-routes' element={<GapNoNotificationsemailAutomationRoutes />} />
+          // === End Batch 07 ===
     </Routes>
   );
 };
