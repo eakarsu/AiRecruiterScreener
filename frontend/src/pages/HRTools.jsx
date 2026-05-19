@@ -95,6 +95,22 @@ const tools = [
     color: 'cyan',
     path: '/hr/org-chart',
   },
+  {
+    id: 'offer-letter',
+    name: 'AI Offer Letter Generator',
+    description: 'Draft professional offer letters from compensation, equity, and start details',
+    icon: FileText,
+    color: 'blue',
+    path: '/hr/offer-letter',
+  },
+  {
+    id: 'dei-metrics',
+    name: 'AI DEI Metrics Aggregator',
+    description: 'Aggregate workforce and hiring funnel data into privacy-aware DEI signals and actions',
+    icon: Users,
+    color: 'emerald',
+    path: '/hr/dei-metrics',
+  },
 ];
 
 const colorClasses = {

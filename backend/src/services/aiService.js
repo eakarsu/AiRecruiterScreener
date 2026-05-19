@@ -1148,6 +1148,101 @@ Provide your assessment in this exact JSON format:
       throw new Error('Failed to assess skills');
     }
   }
+
+  // AI Skills Gap Analysis - team-level skills gap given target capabilities
+  async skillsGapAnalysis(teamSkills, targetCapabilities) {
+    try {
+      const response = await openrouter.chat.completions.create({
+        model: AI_MODEL,
+        messages: [
+          { role: 'system', content: 'You are a workforce-planning AI. Analyze team skill inventories vs target capabilities and propose closure plans. Always respond in valid JSON.' },
+          { role: 'user', content: `Team Skills:\n${JSON.stringify(teamSkills, null, 2)}\n\nTarget Capabilities:\n${JSON.stringify(targetCapabilities, null, 2)}\n\nReturn JSON: {coverage_score:0-100, critical_gaps:[{capability,severity,affected_initiatives}], moderate_gaps:[], surplus_skills:[], closure_plan:{hire:[{role,skills,priority}], train:[{employee_or_team,skill,duration,method}], outsource:[{capability,rationale}]}, summary}.` }
+        ],
+        temperature: 0.3,
+        max_tokens: 2000,
+      });
+      return parseAIJson(response.choices[0].message.content);
+    } catch (error) {
+      console.error('AI Skills Gap Error:', error);
+      throw new Error('Failed to analyze skills gap');
+    }
+  }
+
+  // AI Interview Analysis - structured analysis of an interview transcript
+  async analyzeInterview(transcript, jobDescription, candidateName) {
+    try {
+      const response = await openrouter.chat.completions.create({
+        model: AI_MODEL,
+        messages: [
+          { role: 'system', content: 'You are an expert interview analyst. Evaluate interview transcripts for content quality, communication signals, and fit. Always respond in valid JSON.' },
+          { role: 'user', content: `Candidate: ${candidateName || 'unknown'}\n\nJob Description:\n${jobDescription || ''}\n\nTranscript:\n${transcript}\n\nReturn JSON: {overall_score:0-100, recommendation:"strong_hire|hire|consider|no_hire", topic_coverage:[{topic,covered:bool,depth:"shallow|moderate|deep"}], communication:{clarity:0-100,confidence:0-100,filler_words:number,pace:"too_slow|good|too_fast"}, technical_signals:[{signal,evidence,strength}], red_flags:[], green_flags:[], follow_up_questions:[], summary}.` }
+        ],
+        temperature: 0.3,
+        max_tokens: 2500,
+      });
+      return parseAIJson(response.choices[0].message.content);
+    } catch (error) {
+      console.error('AI Interview Analysis Error:', error);
+      throw new Error('Failed to analyze interview');
+    }
+  }
+
+  // AI Retention Risk Prediction - flag hires likely to churn early
+  async predictRetentionRisk(employeeProfile, contextSignals) {
+    try {
+      const response = await openrouter.chat.completions.create({
+        model: AI_MODEL,
+        messages: [
+          { role: 'system', content: 'You are a retention-risk AI. Score early-tenure attrition risk using profile + signals. Avoid protected-class proxies. Always respond in valid JSON.' },
+          { role: 'user', content: `Employee Profile:\n${JSON.stringify(employeeProfile, null, 2)}\n\nContext Signals:\n${JSON.stringify(contextSignals || {}, null, 2)}\n\nReturn JSON: {risk_score:0-100, risk_band:"low|medium|high|critical", horizon_months:number, top_risk_factors:[{factor,weight,evidence}], protective_factors:[], recommended_interventions:[{action,owner,timing,expected_impact}], confidence:0-1, summary}.` }
+        ],
+        temperature: 0.3,
+        max_tokens: 1800,
+      });
+      return parseAIJson(response.choices[0].message.content);
+    } catch (error) {
+      console.error('AI Retention Risk Error:', error);
+      throw new Error('Failed to predict retention risk');
+    }
+  }
+
+  // Apply pass 4 (mechanical backlog) — Offer Letter Generator
+  async generateOfferLetter(offerInput) {
+    try {
+      const response = await openrouter.chat.completions.create({
+        model: AI_MODEL,
+        messages: [
+          { role: 'system', content: 'You are a precise HR assistant. Draft professional, legally-careful offer letters. Avoid promises beyond the supplied facts. Always respond in valid JSON.' },
+          { role: 'user', content: `Draft an offer letter using these inputs:\n${JSON.stringify(offerInput, null, 2)}\n\nReturn JSON: {subject, greeting, body_paragraphs:[string], compensation_summary:{base_salary, bonus, equity, benefits_summary}, key_dates:{start_date, response_deadline}, signatures:{company_signatory, candidate_line}, formatted_letter:string, notes_to_recruiter:[string]}.` }
+        ],
+        temperature: 0.4,
+        max_tokens: 2200,
+      });
+      return parseAIJson(response.choices[0].message.content);
+    } catch (error) {
+      console.error('AI Offer Letter Error:', error);
+      throw new Error('Failed to generate offer letter');
+    }
+  }
+
+  // Apply pass 4 (mechanical backlog) — DEI Metrics Aggregator
+  async deiMetricsAggregate(workforceSnapshot, hiringFunnel) {
+    try {
+      const response = await openrouter.chat.completions.create({
+        model: AI_MODEL,
+        messages: [
+          { role: 'system', content: 'You are a DEI analytics AI. Aggregate workforce and hiring-funnel data into useful, privacy-aware DEI metrics. Avoid surfacing protected-class identities of individuals; only use aggregate counts/rates. Always respond in valid JSON.' },
+          { role: 'user', content: `Workforce snapshot (aggregate):\n${JSON.stringify(workforceSnapshot || {}, null, 2)}\n\nHiring funnel (aggregate):\n${JSON.stringify(hiringFunnel || {}, null, 2)}\n\nReturn JSON: {representation:[{dimension,group,headcount,share_pct}], pay_equity:[{dimension,gap_pct,note}], hiring_funnel:[{stage,passthrough_rate_pct,by_group:[{group,passthrough_pct}]}], attrition:[{dimension,group,rate_pct}], opportunity_indicators:[{dimension,signal,direction:"positive|negative|neutral"}], top_actions:[{action,rationale,impact_estimate,owner}], summary, caveats:[string]}.` }
+        ],
+        temperature: 0.3,
+        max_tokens: 2200,
+      });
+      return parseAIJson(response.choices[0].message.content);
+    } catch (error) {
+      console.error('AI DEI Metrics Error:', error);
+      throw new Error('Failed to aggregate DEI metrics');
+    }
+  }
 }
 
 module.exports = new AIService();

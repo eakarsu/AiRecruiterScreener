@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard, Briefcase, Users, Calendar, Mail, ClipboardCheck,
   BarChart3, FileText, GitBranch, LogOut, Menu, X, User, ChevronDown,
-  Bot, Sparkles, Settings,
+  Bot, Sparkles, Settings, PieChart,
 } from 'lucide-react';
 
 const navItems = [
@@ -18,6 +18,7 @@ const navItems = [
   { path: '/analytics', label: 'Analytics', icon: BarChart3 },
   { path: '/templates', label: 'Email Templates', icon: FileText },
   { path: '/hr', label: 'HR AI Tools', icon: Sparkles },
+  { path: '/custom-views', label: 'Hiring Analytics', icon: PieChart },
 ];
 
 const Layout = () => {
