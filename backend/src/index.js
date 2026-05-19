@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173'],
+  origin: ['http://localhost:3000', 'http://localhost:3100', 'http://localhost:5510', 'http://localhost:5173'],
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -57,6 +57,9 @@ app.use('/api/communications', communicationRoutes);
 app.use('/api/assessments', assessmentRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/hr', hrRoutes);
+
+// Custom Views - Hiring Analytics (funnel + skill match radar)
+app.use('/api/custom-views', require('./routes/customViews'));
 
 // Error handler
 app.use(errorHandler);

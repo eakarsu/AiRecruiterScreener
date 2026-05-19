@@ -38,6 +38,7 @@ import InterviewAnalysis from './pages/InterviewAnalysis';
 import RetentionRisk from './pages/RetentionRisk';
 import OfferLetter from './pages/OfferLetter';
 import DEIMetrics from './pages/DEIMetrics';
+import CustomViewsPage from './pages/CustomViewsPage';
 
 // === Batch 07 Gaps & Frontend Mounts ===
 import CfUnbiasedResumeRanking from './pages/CfUnbiasedResumeRanking';
@@ -137,6 +138,9 @@ const AppRoutes = () => {
         <Route path="hr/retention-risk" element={<RetentionRisk />} />
         <Route path="hr/offer-letter" element={<OfferLetter />} />
         <Route path="hr/dei-metrics" element={<DEIMetrics />} />
+
+        {/* Custom Hiring Analytics views */}
+        <Route path="custom-views" element={<CustomViewsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
           // === Batch 07 Gaps & Frontend Mounts ===
