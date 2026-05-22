@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard, Briefcase, Users, Calendar, Mail, ClipboardCheck,
   BarChart3, FileText, GitBranch, LogOut, Menu, X, User, ChevronDown,
-  Bot, Sparkles, Settings, PieChart,
+  Bot, Sparkles, Settings, PieChart, Zap,
 } from 'lucide-react';
 
 const navItems = [
@@ -18,7 +18,25 @@ const navItems = [
   { path: '/analytics', label: 'Analytics', icon: BarChart3 },
   { path: '/templates', label: 'Email Templates', icon: FileText },
   { path: '/hr', label: 'HR AI Tools', icon: Sparkles },
+  { path: '/hr/slate-balance', label: 'Slate Balance', icon: PieChart },
   { path: '/custom-views', label: 'Hiring Analytics', icon: PieChart },
+];
+
+const gapNavItems = [
+  { path: '/gap-no-resumescreening-parse-and-score', label: 'Resume Screener', icon: Zap },
+  { path: '/gap-no-interviewanalysis-transcribe-sentiment-re', label: 'Interview Analysis', icon: Zap },
+  { path: '/gap-no-culturefitassessment', label: 'Culture Fit', icon: Zap },
+  { path: '/gap-no-biasdetection-in-hiring-funnel', label: 'Bias Detection', icon: Zap },
+  { path: '/gap-no-salarybenchmark-route', label: 'Salary Benchmark', icon: Zap },
+  { path: '/gap-no-skillsgapanalysis-for-hires', label: 'Skills Gap Analysis', icon: Zap },
+  { path: '/gap-no-resume-parserfile-ingestion-route', label: 'Resume Parser', icon: Zap },
+  { path: '/gap-no-calendar-integration-for-interview-schedu', label: 'Calendar Integration', icon: Zap },
+  { path: '/gap-no-offer-letter-generator', label: 'Offer Letter Gen', icon: Zap },
+  { path: '/gap-no-onboarding-checklist-workflow', label: 'Onboarding Workflow', icon: Zap },
+  { path: '/gap-no-performance-review-module', label: 'Performance Review', icon: Zap },
+  { path: '/gap-no-dei-metrics-dashboard', label: 'DEI Metrics', icon: Zap },
+  { path: '/gap-no-external-jobboard-posting-linkedin-indeed', label: 'Job Board Posting', icon: Zap },
+  { path: '/gap-no-notificationsemail-automation-routes', label: 'Email Automation', icon: Zap },
 ];
 
 const Layout = () => {
@@ -71,6 +89,23 @@ const Layout = () => {
             >
               <item.icon className="w-5 h-5 flex-shrink-0" />
               {sidebarOpen && <span>{item.label}</span>}
+            </NavLink>
+          ))}
+          {sidebarOpen && (
+            <div className="pt-3 pb-1">
+              <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">AI Gap Features</p>
+            </div>
+          )}
+          {gapNavItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                isActive ? 'sidebar-link-active' : 'sidebar-link-inactive'
+              }
+            >
+              <item.icon className="w-5 h-5 flex-shrink-0" />
+              {sidebarOpen && <span className="text-sm">{item.label}</span>}
             </NavLink>
           ))}
         </nav>

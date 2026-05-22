@@ -1243,6 +1243,65 @@ Provide your assessment in this exact JSON format:
       throw new Error('Failed to aggregate DEI metrics');
     }
   }
+
+  // Apply pass 6 (mechanical backlog close-out) — Offer Letter Generator (structured shape)
+  // Input: { candidate:{name,role,level}, terms:{base_salary,bonus?,equity?,start_date,location,employment_type,benefits_summary?}, company:{name,brand_voice?}, custom_clauses? }
+  // Returns: { offer_letter_markdown, offer_letter_html, summary_for_candidate, key_terms_highlights, recommended_negotiation_responses }
+  async generateOfferLetterStructured(input) {
+    try {
+      const response = await openrouter.chat.completions.create({
+        model: AI_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are a precise HR assistant drafting professional, legally-careful offer letters. Use only the supplied facts; do not promise anything beyond the inputs. Match the company.brand_voice if provided (e.g., warm, formal, concise). Always respond in valid JSON with no markdown fences.',
+          },
+          {
+            role: 'user',
+            content:
+              `Draft an offer letter and supporting outputs from these inputs:\n${JSON.stringify(input, null, 2)}\n\n` +
+              `Return JSON with this exact shape:\n{\n  "offer_letter_markdown": "<full letter as markdown, including greeting, body, compensation table, signature block>",\n  "offer_letter_html": "<the same letter rendered as minimal semantic HTML (no <html>/<body> wrappers, just headings, paragraphs, lists, and a simple table)>",\n  "summary_for_candidate": "<2-4 sentence plain-language summary>",\n  "key_terms_highlights": ["<short bullet>", "..."],\n  "recommended_negotiation_responses": [\n    {"likely_ask": "...", "suggested_response": "...", "guardrails": "..."}\n  ]\n}`,
+          },
+        ],
+        temperature: 0.4,
+        max_tokens: 2600,
+      });
+      return parseAIJson(response.choices[0].message.content);
+    } catch (error) {
+      console.error('AI Offer Letter (Structured) Error:', error);
+      throw new Error('Failed to generate offer letter');
+    }
+  }
+
+  // Apply pass 6 (mechanical backlog close-out) — DEI metrics recommendations
+  // Input is the rule-aggregated DEI payload (no PII). Returns { recommended_actions: [string] }.
+  async deiMetricsRecommendations(payload) {
+    try {
+      const response = await openrouter.chat.completions.create({
+        model: AI_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are a DEI analytics assistant. Given aggregate pipeline and hiring metrics (no PII), suggest 3-6 concrete, ethical, evidence-based actions. Do not infer individual identities. Respond only with valid JSON.',
+          },
+          {
+            role: 'user',
+            content:
+              `Aggregate DEI snapshot:\n${JSON.stringify(payload || {}, null, 2)}\n\n` +
+              `Return JSON: {"recommended_actions": ["<short, actionable bullet>", "..."]}.`,
+          },
+        ],
+        temperature: 0.3,
+        max_tokens: 700,
+      });
+      return parseAIJson(response.choices[0].message.content);
+    } catch (error) {
+      console.error('AI DEI Metrics Recommendations Error:', error);
+      throw new Error('Failed to generate DEI recommendations');
+    }
+  }
 }
 
 module.exports = new AIService();

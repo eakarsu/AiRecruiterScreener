@@ -36,3 +36,33 @@ Status: **LEFT-AS-IS**. Frontend already wires the three pass-2 endpoints with f
 
 No FE files written this pass. No `npm install`. No new deps. See `_AUDIT/apply3_logs/ab3_64.md`.
 
+## Apply pass 6 (close-out)
+
+Implemented (2 mechanical follow-ups):
+
+1. `POST /api/ai/offer-letter-generator` — LLM-only offer letter draft.
+   - Body: `{ candidate:{name,role,level}, terms:{base_salary,bonus?,equity?,start_date,location,employment_type,benefits_summary?}, company:{name,brand_voice?}, custom_clauses? }`.
+   - Returns: `{ offer_letter_markdown, offer_letter_html, summary_for_candidate, key_terms_highlights, recommended_negotiation_responses }`.
+   - 503 when `OPENROUTER_API_KEY` missing; 400 on missing required fields.
+2. `GET /api/ai/dei-metrics?period=30d&dept=...` — aggregator.
+   - Pulls `prisma.candidate` (pipeline) + `prisma.employee` (hires) inside `.catch(()=>[])` so missing tables/columns degrade gracefully.
+   - Period parser accepts `Nd|Nw|Nm` (defaults `30d`); optional `dept` filter applied to both pipeline (via `jobPosting.department`) and hires.
+   - Computes `pipeline_demographics`, `hire_demographics`, `conversion_rates_by_segment` (overall + by_source + by_department), rule-driven `gaps`, prior-window `trend_indicators`, rule-driven `recommended_actions` (LLM-augmented when key configured), and the required `disclaimer`.
+   - LLM call is optional; if `OPENROUTER_API_KEY` unset or call fails, rule actions are returned and the endpoint still succeeds.
+
+Files touched (append-only):
+
+- `backend/src/services/aiService.js` — appended `generateOfferLetterStructured(input)` and `deiMetricsRecommendations(payload)` methods on `AIService` class (before `module.exports`).
+- `backend/src/routes/ai-extras.js` — NEW route module, mounted under `/api/ai`. Reuses `authMiddleware`, `prisma`, `aiService`.
+- `backend/src/index.js` — appended `app.use('/api/ai', require('./routes/ai-extras'))` after the `=== End Batch 07 ===` marker.
+
+No schema changes. No new deps. No `.env` edits. No FE touched. Servers not started.
+
+Syntax: `node --check` PASS on `routes/ai-extras.js`, `services/aiService.js`, `index.js`.
+
+Remaining backlog:
+
+- **MECHANICAL-deferred:** Persist AI outputs to dedicated Prisma models (offer letters, DEI snapshots, prior-pass skills-gap / interview-analysis / retention-risk). Currently stateless. Schema decision needed: one polymorphic `AiArtifact` table vs. per-feature models.
+- **NEEDS-PRODUCT-DECISION:** Onboarding checklist domain model — task templates per role/dept, owner roles, due-date offsets relative to start date, status workflow, integration with `Employee`/`JobPosting`.
+- **NEEDS-LIB-CHOICE:** Resume parser PDF→text — pick between `pdf-parse`, `pdfjs-dist`, `mammoth` (DOCX), or a hosted parser; affects deps and file-upload route shape.
+

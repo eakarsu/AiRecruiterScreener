@@ -38,15 +38,22 @@ import InterviewAnalysis from './pages/InterviewAnalysis';
 import RetentionRisk from './pages/RetentionRisk';
 import OfferLetter from './pages/OfferLetter';
 import DEIMetrics from './pages/DEIMetrics';
+import SlateBalance from './pages/SlateBalance';
 import CustomViewsPage from './pages/CustomViewsPage';
 
-// === Batch 07 Gaps & Frontend Mounts ===
+// Codex feature pages
+import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
+import CodexOperationsFeature from './pages/CodexOperationsFeature';
+
+// CF feature pages
 import CfUnbiasedResumeRanking from './pages/CfUnbiasedResumeRanking';
 import CfInterviewIntelligence from './pages/CfInterviewIntelligence';
 import CfPeerFeedbackAggregator from './pages/CfPeerFeedbackAggregator';
 import CfDeiMetricsDashboard from './pages/CfDeiMetricsDashboard';
 import CfRetentionRiskPrediction from './pages/CfRetentionRiskPrediction';
 import CfSkillstoroleMatcher from './pages/CfSkillstoroleMatcher';
+
+// Gap feature pages
 import GapNoResumescreeningParseAndScore from './pages/GapNoResumescreeningParseAndScore';
 import GapNoInterviewanalysisTranscribeSentimentRe from './pages/GapNoInterviewanalysisTranscribeSentimentRe';
 import GapNoCulturefitassessment from './pages/GapNoCulturefitassessment';
@@ -61,7 +68,6 @@ import GapNoPerformanceReviewModule from './pages/GapNoPerformanceReviewModule';
 import GapNoDeiMetricsDashboard from './pages/GapNoDeiMetricsDashboard';
 import GapNoExternalJobboardPostingLinkedinIndeed from './pages/GapNoExternalJobboardPostingLinkedinIndeed';
 import GapNoNotificationsemailAutomationRoutes from './pages/GapNoNotificationsemailAutomationRoutes';
-// === End Batch 07 ===
 
 
 const ProtectedRoute = ({ children }) => {
@@ -138,33 +144,40 @@ const AppRoutes = () => {
         <Route path="hr/retention-risk" element={<RetentionRisk />} />
         <Route path="hr/offer-letter" element={<OfferLetter />} />
         <Route path="hr/dei-metrics" element={<DEIMetrics />} />
+        <Route path="hr/slate-balance" element={<SlateBalance />} />
 
         {/* Custom Hiring Analytics views */}
         <Route path="custom-views" element={<CustomViewsPage />} />
+
+        {/* Codex feature pages */}
+        <Route path="codex/custom-viz" element={<CodexCustomVizFeature />} />
+        <Route path="codex/operations" element={<CodexOperationsFeature />} />
+
+        {/* CF feature pages */}
+        <Route path="cf-unbiased-resume-ranking" element={<CfUnbiasedResumeRanking />} />
+        <Route path="cf-interview-intelligence" element={<CfInterviewIntelligence />} />
+        <Route path="cf-peer-feedback-aggregator" element={<CfPeerFeedbackAggregator />} />
+        <Route path="cf-dei-metrics-dashboard" element={<CfDeiMetricsDashboard />} />
+        <Route path="cf-retention-risk-prediction" element={<CfRetentionRiskPrediction />} />
+        <Route path="cf-skillstorole-matcher" element={<CfSkillstoroleMatcher />} />
+
+        {/* Gap feature pages */}
+        <Route path="gap-no-resumescreening-parse-and-score" element={<GapNoResumescreeningParseAndScore />} />
+        <Route path="gap-no-interviewanalysis-transcribe-sentiment-re" element={<GapNoInterviewanalysisTranscribeSentimentRe />} />
+        <Route path="gap-no-culturefitassessment" element={<GapNoCulturefitassessment />} />
+        <Route path="gap-no-biasdetection-in-hiring-funnel" element={<GapNoBiasdetectionInHiringFunnel />} />
+        <Route path="gap-no-salarybenchmark-route" element={<GapNoSalarybenchmarkRoute />} />
+        <Route path="gap-no-skillsgapanalysis-for-hires" element={<GapNoSkillsgapanalysisForHires />} />
+        <Route path="gap-no-resume-parserfile-ingestion-route" element={<GapNoResumeParserfileIngestionRoute />} />
+        <Route path="gap-no-calendar-integration-for-interview-schedu" element={<GapNoCalendarIntegrationForInterviewSchedu />} />
+        <Route path="gap-no-offer-letter-generator" element={<GapNoOfferLetterGenerator />} />
+        <Route path="gap-no-onboarding-checklist-workflow" element={<GapNoOnboardingChecklistWorkflow />} />
+        <Route path="gap-no-performance-review-module" element={<GapNoPerformanceReviewModule />} />
+        <Route path="gap-no-dei-metrics-dashboard" element={<GapNoDeiMetricsDashboard />} />
+        <Route path="gap-no-external-jobboard-posting-linkedin-indeed" element={<GapNoExternalJobboardPostingLinkedinIndeed />} />
+        <Route path="gap-no-notificationsemail-automation-routes" element={<GapNoNotificationsemailAutomationRoutes />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
-          // === Batch 07 Gaps & Frontend Mounts ===
-          <Route path='/cf-unbiased-resume-ranking' element={<CfUnbiasedResumeRanking />} />
-          <Route path='/cf-interview-intelligence' element={<CfInterviewIntelligence />} />
-          <Route path='/cf-peer-feedback-aggregator' element={<CfPeerFeedbackAggregator />} />
-          <Route path='/cf-dei-metrics-dashboard' element={<CfDeiMetricsDashboard />} />
-          <Route path='/cf-retention-risk-prediction' element={<CfRetentionRiskPrediction />} />
-          <Route path='/cf-skillstorole-matcher' element={<CfSkillstoroleMatcher />} />
-          <Route path='/gap-no-resumescreening-parse-and-score' element={<GapNoResumescreeningParseAndScore />} />
-          <Route path='/gap-no-interviewanalysis-transcribe-sentiment-re' element={<GapNoInterviewanalysisTranscribeSentimentRe />} />
-          <Route path='/gap-no-culturefitassessment' element={<GapNoCulturefitassessment />} />
-          <Route path='/gap-no-biasdetection-in-hiring-funnel' element={<GapNoBiasdetectionInHiringFunnel />} />
-          <Route path='/gap-no-salarybenchmark-route' element={<GapNoSalarybenchmarkRoute />} />
-          <Route path='/gap-no-skillsgapanalysis-for-hires' element={<GapNoSkillsgapanalysisForHires />} />
-          <Route path='/gap-no-resume-parserfile-ingestion-route' element={<GapNoResumeParserfileIngestionRoute />} />
-          <Route path='/gap-no-calendar-integration-for-interview-schedu' element={<GapNoCalendarIntegrationForInterviewSchedu />} />
-          <Route path='/gap-no-offer-letter-generator' element={<GapNoOfferLetterGenerator />} />
-          <Route path='/gap-no-onboarding-checklist-workflow' element={<GapNoOnboardingChecklistWorkflow />} />
-          <Route path='/gap-no-performance-review-module' element={<GapNoPerformanceReviewModule />} />
-          <Route path='/gap-no-dei-metrics-dashboard' element={<GapNoDeiMetricsDashboard />} />
-          <Route path='/gap-no-external-jobboard-posting-linkedin-indeed' element={<GapNoExternalJobboardPostingLinkedinIndeed />} />
-          <Route path='/gap-no-notificationsemail-automation-routes' element={<GapNoNotificationsemailAutomationRoutes />} />
-          // === End Batch 07 ===
     </Routes>
   );
 };
