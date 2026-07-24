@@ -15,6 +15,7 @@ app.disable('x-powered-by');
 app.use((_req,res,next)=>{res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','no-referrer');next();});
 app.use(cors({origin:(origin,callback)=>!origin||origins.includes(origin)?callback(null,true):callback(new Error('Origin not allowed by CORS')),credentials:true}));
 app.use(express.json({limit:'1mb'}));
+app.use('/api/runtime-ai',require('./routes/runtimeAi'));
 app.use(createProviderGate(['/api/ai','/api/gap','/api/generated','/api/screen','/api/calendar','/api/interview','/api/rank']));
 app.get('/api/health',(_req,res)=>res.json({status:'ok',workflow:'reviewed_candidate_screening',humanEmploymentDecisionRequired:true,timestamp:new Date().toISOString()}));
 app.use('/api/auth',authRoutes);
