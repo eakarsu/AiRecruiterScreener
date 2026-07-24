@@ -36,10 +36,14 @@ async function main() {
   // ============================================================
   // USERS (15 with full profile data, email verification, roles)
   // ============================================================
-  const hashedPassword = await bcrypt.hash('Admin123!', 12);
+  const demoEmail = process.env.DEMO_EMAIL || '';
+  const demoPassword = process.env.DEMO_PASSWORD || '';
+  if (!demoEmail.includes('@')) throw new Error('DEMO_EMAIL must be a valid email address');
+  if (demoPassword.length < 12) throw new Error('DEMO_PASSWORD must be at least 12 characters');
+  const hashedPassword = await bcrypt.hash(demoPassword, 12);
 
   const usersData = [
-    { email: 'admin@airecruiter.com', firstName: 'Admin', lastName: 'User', role: 'admin', emailVerified: true, phone: '555-1000', department: 'Executive', title: 'System Administrator', bio: 'Platform administrator with full system access.' },
+    { email: demoEmail, firstName: 'Admin', lastName: 'User', role: 'admin', emailVerified: true, phone: '555-1000', department: 'Executive', title: 'System Administrator', bio: 'Platform administrator with full system access.' },
     { email: 'sarah.johnson@airecruiter.com', firstName: 'Sarah', lastName: 'Johnson', role: 'recruiter', emailVerified: true, phone: '555-1001', department: 'HR', title: 'Senior Recruiter', bio: 'Experienced recruiter specializing in tech talent.' },
     { email: 'mike.chen@airecruiter.com', firstName: 'Mike', lastName: 'Chen', role: 'recruiter', emailVerified: true, phone: '555-1002', department: 'HR', title: 'Technical Recruiter', bio: 'Focused on engineering and data science roles.' },
     { email: 'emily.davis@airecruiter.com', firstName: 'Emily', lastName: 'Davis', role: 'hiring_manager', emailVerified: true, phone: '555-1003', department: 'Engineering', title: 'Engineering Director', bio: 'Leading engineering teams for 10+ years.' },
@@ -805,7 +809,7 @@ async function main() {
   console.log(`   Pipeline Stages: ${pipelineStages.length}`);
   console.log('\nDemo Login:');
   console.log('   Email: admin@airecruiter.com');
-  console.log('   Password: Admin123!');
+  console.log('   Demo administrator password loaded from the local environment.');
 }
 
 main()

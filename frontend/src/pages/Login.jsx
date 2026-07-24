@@ -197,7 +197,7 @@ const Login = () => {
             </form>
 
             <p className="mt-6 text-center text-sm text-gray-500">
-              Demo credentials: admin@airecruiter.com / Admin123!
+              Demo credentials are loaded from the local runtime configuration.
             </p>
           </div>
         </div>

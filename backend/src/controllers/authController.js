@@ -362,9 +362,15 @@ const logout = async (req, res) => {
 
 // Get demo credentials
 const getDemoCredentials = async (req, res) => {
+  if (process.env.NODE_ENV === 'production' || process.env.ENABLE_DEMO_CREDENTIAL_AUTOFILL === 'false') {
+    return res.status(404).json({ error: 'Demo credentials are disabled' });
+  }
+  if (!process.env.DEMO_EMAIL || !process.env.DEMO_PASSWORD) {
+    return res.status(503).json({ error: 'Demo account is not configured' });
+  }
   res.json({
-    email: process.env.DEMO_EMAIL || 'admin@airecruiter.com',
-    password: process.env.DEMO_PASSWORD || 'Admin123!',
+    email: process.env.DEMO_EMAIL,
+    password: process.env.DEMO_PASSWORD,
   });
 };
 
