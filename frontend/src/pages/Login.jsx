@@ -110,7 +110,7 @@ const Login = () => {
               className="w-full flex items-center justify-center gap-2 px-4 py-3 mb-6 bg-gradient-to-r from-purple-500 to-primary-500 text-white rounded-lg font-medium hover:from-purple-600 hover:to-primary-600 transition-all shadow-md hover:shadow-lg"
             >
               <Sparkles className="w-5 h-5" />
-              Fill Demo Credentials
+              Auto Fill Demo Credentials
             </button>
 
             <div className="relative mb-6">
