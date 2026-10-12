@@ -1,3 +1,5 @@
+import FormattedAIReport from '../components/FormattedAIReport';
+import AutoAIExamples from '../components/AutoAIExamples';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -55,6 +57,7 @@ const InterviewAnalysis = () => {
 
       <div className="card">
         <form onSubmit={handleSubmit} className="space-y-4">
+          <AutoAIExamples />
           <div>
             <label className="label">Role (optional)</label>
             <input
@@ -90,68 +93,9 @@ const InterviewAnalysis = () => {
         </form>
       </div>
 
-      {result && (
-        <div className="card space-y-4">
-          <h2 className="text-lg font-semibold">Analysis</h2>
-          {result.summary && <p className="text-sm text-gray-700">{result.summary}</p>}
-
-          {result.overallScore != null && (
-            <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center border-4 border-purple-300">
-                <span className="text-2xl font-bold text-purple-600">{result.overallScore}</span>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Overall Score</p>
-                {result.recommendation && (
-                  <p className="text-base font-semibold capitalize">{String(result.recommendation).replace(/_/g, ' ')}</p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {Array.isArray(result.topics) && result.topics.length > 0 && (
-            <Section title="Topics Covered" items={result.topics} />
-          )}
-          {Array.isArray(result.strengths) && result.strengths.length > 0 && (
-            <Section title="Strengths" items={result.strengths} />
-          )}
-          {Array.isArray(result.concerns) && result.concerns.length > 0 && (
-            <Section title="Concerns" items={result.concerns} color="orange" />
-          )}
-          {Array.isArray(result.red_flags) && result.red_flags.length > 0 && (
-            <Section title="Red Flags" items={result.red_flags} color="red" />
-          )}
-
-          {result.communication && typeof result.communication === 'object' && (
-            <div>
-              <h3 className="font-semibold mb-2">Communication</h3>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                {Object.entries(result.communication).map(([k, v]) => (
-                  <div key={k} className="p-2 border rounded">
-                    <span className="text-gray-500 capitalize">{k.replace(/_/g, ' ')}: </span>
-                    <span className="font-medium">{typeof v === 'object' ? JSON.stringify(v) : String(v)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {Array.isArray(result.followup_questions) && result.followup_questions.length > 0 && (
-            <Section title="Suggested Follow-up Questions" items={result.followup_questions} />
-          )}
-        </div>
-      )}
+      {result !== null && <FormattedAIReport response={result} title="Interview analysis" />}
     </div>
   );
 };
-
-const Section = ({ title, items, color = 'gray' }) => (
-  <div>
-    <h3 className="font-semibold mb-2">{title}</h3>
-    <ul className={`text-sm text-${color}-700 list-disc pl-5 space-y-1`}>
-      {items.map((it, i) => <li key={i}>{typeof it === 'string' ? it : JSON.stringify(it)}</li>)}
-    </ul>
-  </div>
-);
 
 export default InterviewAnalysis;

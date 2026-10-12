@@ -1,3 +1,4 @@
+import { listPayload } from '../utils/listPayload';
 import React, { useState, useEffect } from 'react';
 import { communicationsApi } from '../services/api';
 import { FileText, Plus, X, Edit, Eye } from 'lucide-react';
@@ -123,7 +124,7 @@ const EmailTemplates = () => {
     try {
       const response = await communicationsApi.getTemplates({ type: typeFilter || undefined, page, limit, sortBy: sort.sortBy, sortOrder: sort.sortOrder });
       const res = response.data;
-      setTemplates(res.data || res);
+      setTemplates(listPayload(res));
       setPagination(res.pagination || null);
     } catch { toast.error('Failed to fetch templates'); }
     finally { setLoading(false); }

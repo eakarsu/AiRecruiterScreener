@@ -1,3 +1,5 @@
+import { listPayload } from '../utils/listPayload';
+import AutoAIExamples from '../components/AutoAIExamples';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { interviewSchedulerApi, candidatesApi } from '../services/api';
@@ -45,8 +47,8 @@ const InterviewScheduler = () => {
         interviewSchedulerApi.getAll(),
         candidatesApi.getAll(),
       ]);
-      setSchedules(schedulesRes.data);
-      setCandidates(candidatesRes.data);
+      setSchedules(listPayload(schedulesRes.data));
+      setCandidates(listPayload(candidatesRes.data));
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
@@ -212,6 +214,7 @@ const InterviewScheduler = () => {
               </button>
             </div>
             <form onSubmit={handleSchedule} className="space-y-4">
+          <AutoAIExamples />
               <div className="p-3 bg-gray-50 rounded-lg">
                 <label className="text-xs font-medium text-gray-500 mb-2 block">Load Sample Data</label>
                 <div className="flex flex-wrap gap-2">

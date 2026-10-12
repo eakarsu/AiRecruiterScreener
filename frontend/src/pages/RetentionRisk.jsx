@@ -1,3 +1,5 @@
+import FormattedAIReport from '../components/FormattedAIReport';
+import AutoAIExamples from '../components/AutoAIExamples';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -64,6 +66,7 @@ const RetentionRisk = () => {
 
       <div className="card">
         <form onSubmit={handleSubmit} className="space-y-4">
+          <AutoAIExamples />
           <div>
             <label className="label">Hire / employee profile</label>
             <textarea
@@ -112,56 +115,9 @@ const RetentionRisk = () => {
         </form>
       </div>
 
-      {result && (
-        <div className="card space-y-4">
-          <h2 className="text-lg font-semibold">Risk Result</h2>
-
-          {(result.riskLevel || result.risk_level || result.score != null) && (
-            <div className="p-4 bg-gradient-to-r from-rose-50 to-orange-50 rounded-lg flex items-center gap-4">
-              {result.score != null && (
-                <div className={`w-16 h-16 rounded-full bg-${riskColor(result.riskLevel || result.risk_level)}-100 flex items-center justify-center border-4 border-${riskColor(result.riskLevel || result.risk_level)}-300`}>
-                  <span className={`text-2xl font-bold text-${riskColor(result.riskLevel || result.risk_level)}-600`}>{result.score}</span>
-                </div>
-              )}
-              <div>
-                <p className="text-sm text-gray-500">Risk Level</p>
-                <p className={`text-base font-semibold capitalize text-${riskColor(result.riskLevel || result.risk_level)}-700`}>
-                  {result.riskLevel || result.risk_level || 'unknown'}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {result.summary && <p className="text-sm text-gray-700">{result.summary}</p>}
-
-          {Array.isArray(result.factors) && result.factors.length > 0 && (
-            <Section title="Risk Factors" items={result.factors} />
-          )}
-          {Array.isArray(result.warningSigns) && result.warningSigns.length > 0 && (
-            <Section title="Warning Signs" items={result.warningSigns} />
-          )}
-          {Array.isArray(result.warning_signs) && result.warning_signs.length > 0 && (
-            <Section title="Warning Signs" items={result.warning_signs} />
-          )}
-          {Array.isArray(result.interventions) && result.interventions.length > 0 && (
-            <Section title="Suggested Interventions" items={result.interventions} />
-          )}
-          {Array.isArray(result.recommendations) && result.recommendations.length > 0 && (
-            <Section title="Recommendations" items={result.recommendations} />
-          )}
-        </div>
-      )}
+      {result !== null && <FormattedAIReport response={result} title="Retention risk" />}
     </div>
   );
 };
-
-const Section = ({ title, items }) => (
-  <div>
-    <h3 className="font-semibold mb-2">{title}</h3>
-    <ul className="text-sm text-gray-700 list-disc pl-5 space-y-1">
-      {items.map((it, i) => <li key={i}>{typeof it === 'string' ? it : JSON.stringify(it)}</li>)}
-    </ul>
-  </div>
-);
 
 export default RetentionRisk;

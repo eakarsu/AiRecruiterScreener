@@ -1,3 +1,4 @@
+import FormattedAIReport from './FormattedAIReport';
 import React from 'react';
 import { X, Edit3, Trash2, ExternalLink } from 'lucide-react';
 
@@ -54,7 +55,9 @@ const RowDetail = ({ item, fields, title, onClose, onEdit, onDelete, onNavigate 
             {fields.map((field) => {
               let value = field.key.split('.').reduce((o, k) => o?.[k], item);
 
-              if (field.render) {
+              if (field.key === 'aiAnalysis' && value !== null && value !== undefined) {
+                value = <FormattedAIReport response={value} title={field.label} />;
+              } else if (field.render) {
                 value = field.render(value, item);
               } else if (value === null || value === undefined) {
                 value = <span className="text-gray-400">--</span>;

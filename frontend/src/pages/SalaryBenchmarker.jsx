@@ -1,3 +1,4 @@
+import AutoAIExamples from '../components/AutoAIExamples';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { salaryBenchmarkApi } from '../services/api';
@@ -200,6 +201,7 @@ const SalaryBenchmarker = () => {
               </button>
             </div>
             <form onSubmit={handleAnalyze} className="space-y-4">
+          <AutoAIExamples />
               <div className="p-3 bg-gray-50 rounded-lg">
                 <label className="text-xs font-medium text-gray-500 mb-2 block">Load Sample Data</label>
                 <div className="flex flex-wrap gap-2">

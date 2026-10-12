@@ -1,3 +1,4 @@
+import { listPayload } from '../utils/listPayload';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { interviewsApi, candidatesApi, downloadBlob } from '../services/api';
@@ -105,7 +106,7 @@ const NewInterviewModal = ({ isOpen, onClose, onSave }) => {
     try {
       const response = await candidatesApi.getAll();
       const res = response.data;
-      setCandidates(res.data || res);
+      setCandidates(listPayload(res));
     } catch {}
   };
 
@@ -242,7 +243,7 @@ const Interviews = () => {
     try {
       const response = await interviewsApi.getAll({ status: statusFilter || undefined, page, limit, sortBy: sort.sortBy, sortOrder: sort.sortOrder });
       const res = response.data;
-      setInterviews(res.data || res);
+      setInterviews(listPayload(res));
       setPagination(res.pagination || null);
     } catch { toast.error('Failed to fetch interviews'); }
     finally { setLoading(false); }

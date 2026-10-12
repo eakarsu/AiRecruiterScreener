@@ -1,3 +1,4 @@
+import { listPayload } from '../utils/listPayload';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { jobsApi, downloadBlob } from '../services/api';
@@ -247,7 +248,7 @@ const Jobs = () => {
     try {
       const response = await jobsApi.getAll({ status: statusFilter || undefined, search: search || undefined, page, limit, sortBy: sort.sortBy, sortOrder: sort.sortOrder });
       const res = response.data;
-      setJobs(res.data || res);
+      setJobs(listPayload(res));
       setPagination(res.pagination || null);
     } catch { toast.error('Failed to fetch jobs'); }
     finally { setLoading(false); }

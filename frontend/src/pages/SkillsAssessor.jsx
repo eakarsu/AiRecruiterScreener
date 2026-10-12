@@ -1,3 +1,6 @@
+import { listPayload } from '../utils/listPayload';
+
+import FullAIExamples, { useFullAIExamples } from "../components/FullAIExamples.jsx";
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { skillsAssessorApi, candidatesApi } from '../services/api';
@@ -16,6 +19,8 @@ import {
 } from 'lucide-react';
 
 const SkillsAssessor = () => {
+  const fullAIExamples = useFullAIExamples();
+
   const navigate = useNavigate();
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +43,7 @@ const SkillsAssessor = () => {
   const fetchCandidates = async () => {
     try {
       const res = await candidatesApi.getAll();
-      setCandidates(res.data);
+      setCandidates(listPayload(res.data));
     } catch (error) {
       console.error('Failed to fetch candidates:', error);
     } finally {
@@ -49,7 +54,7 @@ const SkillsAssessor = () => {
   const fetchSavedAssessments = async () => {
     try {
       const res = await skillsAssessorApi.getAll();
-      setSavedAssessments(res.data);
+      setSavedAssessments(listPayload(res.data));
     } catch (error) {
       console.error('Failed to fetch assessments:', error);
     } finally {
@@ -315,7 +320,7 @@ const SkillsAssessor = () => {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handleAssess} className="space-y-4">
+            <form onSubmit={handleAssess} className="space-y-4" data-full-ai-workspace="SkillsAssessor"><FullAIExamples controller={fullAIExamples} disabled={Boolean(loading)} />
               <div className="p-3 bg-gray-50 rounded-lg">
                 <label className="text-xs font-medium text-gray-500 mb-2 block">Load Sample Data</label>
                 <div className="flex flex-wrap gap-2">
@@ -350,7 +355,7 @@ const SkillsAssessor = () => {
                   value={formData.candidateId}
                   onChange={(e) => setFormData({ ...formData, candidateId: e.target.value })}
                   className="input"
-                  required
+                  required data-full-ai-field={fullAIExamples.bind({ current: formData.candidateId, change: (e) => setFormData({ ...formData, candidateId: e.target.value }), label: "formData.candidateId", manual: false, json: false, sample: '' }, "p1-14296", undefined)}
                 >
                   <option value="">Select Candidate</option>
                   {candidates.map((c) => (
@@ -368,7 +373,7 @@ const SkillsAssessor = () => {
                   className="input"
                   rows={4}
                   placeholder="e.g., JavaScript, React, Node.js, SQL, AWS"
-                  required
+                  required data-full-ai-field={fullAIExamples.bind({ current: formData.requiredSkills, change: (e) => setFormData({ ...formData, requiredSkills: e.target.value }), label: "formData.requiredSkills", manual: false, json: false, sample: '' }, "p1-14984", undefined)}
                 />
                 <p className="text-xs text-gray-500 mt-1">Enter skills separated by commas</p>
               </div>

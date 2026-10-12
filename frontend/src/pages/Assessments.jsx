@@ -1,3 +1,5 @@
+import { listPayload } from '../utils/listPayload';
+import AutoAIExamples from '../components/AutoAIExamples';
 import React, { useState, useEffect } from 'react';
 import { assessmentsApi, candidatesApi } from '../services/api';
 import {
@@ -93,7 +95,7 @@ const NewAssessmentModal = ({ isOpen, onClose, onSave }) => {
     try {
       const response = await candidatesApi.getAll();
       const res = response.data;
-      setCandidates(res.data || res);
+      setCandidates(listPayload(res));
     } catch {}
   };
 
@@ -113,7 +115,8 @@ const NewAssessmentModal = ({ isOpen, onClose, onSave }) => {
           <h2 className="text-xl font-semibold">Create Assessment</h2>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg"><X className="w-5 h-5" /></button>
         </div>
-        <div className="modal-body space-y-4">
+        <div className="modal-body space-y-4" data-ai-example-scope>
+          <AutoAIExamples />
           <div>
             <label className="label">Candidate *</label>
             <select className="input" value={formData.candidateId} onChange={e => setFormData({ ...formData, candidateId: e.target.value })}>
@@ -165,7 +168,7 @@ const Assessments = () => {
     try {
       const response = await assessmentsApi.getAll({ status: statusFilter || undefined, type: typeFilter || undefined, page, limit, sortBy: sort.sortBy, sortOrder: sort.sortOrder });
       const res = response.data;
-      setAssessments(res.data || res);
+      setAssessments(listPayload(res));
       setPagination(res.pagination || null);
     } catch { toast.error('Failed to fetch assessments'); }
     finally { setLoading(false); }

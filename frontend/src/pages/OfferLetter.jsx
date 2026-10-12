@@ -1,3 +1,5 @@
+import AutoAIExamples from '../components/AutoAIExamples';
+import FormattedAIReport from "../components/FormattedAIReport";
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -70,6 +72,7 @@ const OfferLetter = () => {
 
       <div className="card">
         <form onSubmit={handleSubmit} className="space-y-4">
+          <AutoAIExamples />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="label">Candidate name</label>
@@ -126,11 +129,7 @@ const OfferLetter = () => {
         <div className="card space-y-4">
           <h2 className="text-lg font-semibold">Drafted Offer</h2>
           {result.subject && <p className="text-sm text-gray-700"><span className="font-medium">Subject:</span> {result.subject}</p>}
-          {result.formatted_letter ? (
-            <pre className="text-sm whitespace-pre-wrap font-sans bg-gray-50 p-4 rounded-lg border border-gray-200">{result.formatted_letter}</pre>
-          ) : (
-            <pre className="text-sm whitespace-pre-wrap font-sans bg-gray-50 p-4 rounded-lg border border-gray-200">{JSON.stringify(result, null, 2)}</pre>
-          )}
+          {<FormattedAIReport response={result} />}
           {Array.isArray(result.notes_to_recruiter) && result.notes_to_recruiter.length > 0 && (
             <div>
               <h3 className="font-semibold mb-2">Notes to recruiter</h3>

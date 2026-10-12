@@ -1,3 +1,5 @@
+import { listPayload } from '../utils/listPayload';
+import AutoAIExamples from '../components/AutoAIExamples';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jobsApi, biasDetectorApi } from '../services/api';
@@ -40,7 +42,7 @@ const JobDescriptionWriter = () => {
   const fetchSavedJobs = async () => {
     try {
       const res = await jobsApi.getAll({ status: 'draft' });
-      setSavedJobs(res.data.filter(j => j.aiGenerated));
+      setSavedJobs(listPayload(res.data).filter(j => j.aiGenerated));
     } catch (error) {
       console.error('Failed to fetch saved jobs:', error);
     } finally {
@@ -160,6 +162,7 @@ Salary Range: $${result.salaryRange?.min?.toLocaleString()} - $${result.salaryRa
         <div className="card">
           <h2 className="text-lg font-semibold mb-4">Job Details</h2>
           <form onSubmit={handleGenerate} className="space-y-4">
+          <AutoAIExamples />
             <div className="p-3 bg-gray-50 rounded-lg">
               <label className="text-xs font-medium text-gray-500 mb-2 block">Load Sample Data</label>
               <div className="flex flex-wrap gap-2">

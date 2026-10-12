@@ -1,3 +1,4 @@
+import { listPayload } from '../utils/listPayload';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { candidatesApi, analyticsApi } from '../services/api';
@@ -92,7 +93,7 @@ const Pipeline = () => {
   const fetchCandidates = async () => {
     try {
       const response = await candidatesApi.getAll();
-      setCandidates(response.data);
+      setCandidates(listPayload(response.data));
     } catch (error) {
       console.error('Failed to fetch candidates:', error);
     } finally {

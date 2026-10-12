@@ -1,3 +1,5 @@
+import { listPayload } from '../utils/listPayload';
+import AutoAIExamples from '../components/AutoAIExamples';
 import React, { useState, useEffect } from 'react';
 import { communicationsApi, candidatesApi } from '../services/api';
 import {
@@ -92,7 +94,7 @@ const NewCommunicationModal = ({ isOpen, onClose, onSave }) => {
     try {
       const response = await candidatesApi.getAll();
       const res = response.data;
-      setCandidates(res.data || res);
+      setCandidates(listPayload(res));
     } catch {}
   };
 
@@ -122,6 +124,7 @@ const NewCommunicationModal = ({ isOpen, onClose, onSave }) => {
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg"><X className="w-5 h-5" /></button>
         </div>
         <form onSubmit={handleSubmit}>
+          <AutoAIExamples />
           <div className="modal-body space-y-4">
             <div>
               <label className="label">Candidate *</label>
@@ -132,7 +135,7 @@ const NewCommunicationModal = ({ isOpen, onClose, onSave }) => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div><label className="label">Type</label>
-                <select className="input" value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })}>
+                <select className="input" data-ai-example-preserve value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })}>
                   <option value="email">Email</option><option value="sms">SMS</option><option value="call">Call Log</option>
                 </select>
               </div>
@@ -194,7 +197,7 @@ const Communications = () => {
     try {
       const response = await communicationsApi.getAll({ type: typeFilter || undefined, page, limit, sortBy: sort.sortBy, sortOrder: sort.sortOrder });
       const res = response.data;
-      setCommunications(res.data || res);
+      setCommunications(listPayload(res));
       setPagination(res.pagination || null);
     } catch { toast.error('Failed to fetch communications'); }
     finally { setLoading(false); }

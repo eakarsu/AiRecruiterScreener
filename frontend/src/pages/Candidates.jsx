@@ -1,3 +1,4 @@
+import { listPayload } from '../utils/listPayload';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { candidatesApi, jobsApi, downloadBlob } from '../services/api';
@@ -100,7 +101,7 @@ const NewCandidateModal = ({ isOpen, onClose, onSave, defaultJobId }) => {
   const fetchJobs = async () => {
     try {
       const response = await jobsApi.getAll({ status: 'active' });
-      const data = response.data.data || response.data;
+      const data = listPayload(response.data);
       setJobs(data);
       if (!defaultJobId && data.length > 0) setFormData(prev => ({ ...prev, jobPostingId: data[0].id }));
     } catch {}
@@ -240,7 +241,7 @@ const Candidates = () => {
     try {
       const response = await candidatesApi.getAll({ status: statusFilter || undefined, search: search || undefined, page, limit, sortBy: sort.sortBy, sortOrder: sort.sortOrder });
       const res = response.data;
-      setCandidates(res.data || res);
+      setCandidates(listPayload(res));
       setPagination(res.pagination || null);
     } catch { toast.error('Failed to fetch candidates'); }
     finally { setLoading(false); }

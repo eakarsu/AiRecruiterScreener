@@ -1,3 +1,4 @@
+import { listPayload } from '../utils/listPayload';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { analyticsApi } from '../services/api';
@@ -116,8 +117,8 @@ const Dashboard = () => {
         analyticsApi.getRecentActivity({ limit: 10 }),
       ]);
       setStats(statsRes.data);
-      setPipeline(pipelineRes.data.pipeline);
-      setActivities(activityRes.data);
+      setPipeline(listPayload(pipelineRes.data.pipeline));
+      setActivities(listPayload(activityRes.data));
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
     } finally {

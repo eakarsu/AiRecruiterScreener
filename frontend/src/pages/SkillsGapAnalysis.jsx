@@ -1,3 +1,5 @@
+import FormattedAIReport from '../components/FormattedAIReport';
+import AutoAIExamples from '../components/AutoAIExamples';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -58,6 +60,7 @@ const SkillsGapAnalysis = () => {
 
       <div className="card">
         <form onSubmit={handleSubmit} className="space-y-4">
+          <AutoAIExamples />
           <div>
             <label className="label">Team / role(s) summary</label>
             <textarea
@@ -105,68 +108,9 @@ const SkillsGapAnalysis = () => {
         </form>
       </div>
 
-      {result && (
-        <div className="card space-y-4">
-          <h2 className="text-lg font-semibold">Analysis Result</h2>
-          {result.summary && <p className="text-sm text-gray-700">{result.summary}</p>}
-
-          {Array.isArray(result.gaps) && result.gaps.length > 0 && (
-            <div>
-              <h3 className="font-semibold mb-2">Identified Gaps</h3>
-              <div className="space-y-2">
-                {result.gaps.map((g, i) => (
-                  <div key={i} className="p-3 border rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">{g.skill || g.name}</span>
-                      {g.severity && (
-                        <span className={`px-2 py-0.5 text-xs rounded ${
-                          g.severity === 'critical' ? 'bg-red-100 text-red-700' :
-                          g.severity === 'major' ? 'bg-orange-100 text-orange-700' :
-                          'bg-gray-100 text-gray-700'
-                        }`}>{g.severity}</span>
-                      )}
-                    </div>
-                    {g.notes && <p className="text-sm text-gray-600 mt-1">{g.notes}</p>}
-                    {g.recommendation && <p className="text-xs text-indigo-600 mt-1">Plan: {g.recommendation}</p>}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {Array.isArray(result.closure_plan) && result.closure_plan.length > 0 && (
-            <div>
-              <h3 className="font-semibold mb-2">Closure Plan</h3>
-              <ul className="text-sm text-gray-700 list-disc pl-5 space-y-1">
-                {result.closure_plan.map((p, i) => (
-                  <li key={i}>{typeof p === 'string' ? p : (p.action || JSON.stringify(p))}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {Array.isArray(result.hire) && result.hire.length > 0 && (
-            <Section title="Hire" items={result.hire} />
-          )}
-          {Array.isArray(result.train) && result.train.length > 0 && (
-            <Section title="Train" items={result.train} />
-          )}
-          {Array.isArray(result.outsource) && result.outsource.length > 0 && (
-            <Section title="Outsource" items={result.outsource} />
-          )}
-        </div>
-      )}
+      {result !== null && <FormattedAIReport response={result} title="Skills gap analysis" />}
     </div>
   );
 };
-
-const Section = ({ title, items }) => (
-  <div>
-    <h3 className="font-semibold mb-2">{title}</h3>
-    <ul className="text-sm text-gray-700 list-disc pl-5 space-y-1">
-      {items.map((it, i) => <li key={i}>{typeof it === 'string' ? it : JSON.stringify(it)}</li>)}
-    </ul>
-  </div>
-);
 
 export default SkillsGapAnalysis;

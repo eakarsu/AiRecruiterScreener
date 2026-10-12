@@ -1,3 +1,5 @@
+import FormattedAIReport from '../components/FormattedAIReport';
+import AutoAIExamples from '../components/AutoAIExamples';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -82,6 +84,7 @@ const DEIMetrics = () => {
 
       <div className="card">
         <form onSubmit={handleSubmit} className="space-y-4">
+          <AutoAIExamples />
           <div>
             <label className="label">Workforce snapshot (aggregate JSON)</label>
             <textarea className="input font-mono text-xs" rows={8} value={workforce} onChange={(e) => setWorkforce(e.target.value)} />
@@ -104,44 +107,9 @@ const DEIMetrics = () => {
         </form>
       </div>
 
-      {result && (
-        <div className="card space-y-4">
-          <h2 className="text-lg font-semibold">DEI Metrics</h2>
-          {result.summary && <p className="text-sm text-gray-700">{result.summary}</p>}
-          {Array.isArray(result.representation) && result.representation.length > 0 && (
-            <Section title="Representation" items={result.representation} />
-          )}
-          {Array.isArray(result.pay_equity) && result.pay_equity.length > 0 && (
-            <Section title="Pay Equity" items={result.pay_equity} />
-          )}
-          {Array.isArray(result.hiring_funnel) && result.hiring_funnel.length > 0 && (
-            <Section title="Hiring Funnel" items={result.hiring_funnel} />
-          )}
-          {Array.isArray(result.attrition) && result.attrition.length > 0 && (
-            <Section title="Attrition" items={result.attrition} />
-          )}
-          {Array.isArray(result.opportunity_indicators) && result.opportunity_indicators.length > 0 && (
-            <Section title="Opportunity Indicators" items={result.opportunity_indicators} />
-          )}
-          {Array.isArray(result.top_actions) && result.top_actions.length > 0 && (
-            <Section title="Top Actions" items={result.top_actions} />
-          )}
-          {Array.isArray(result.caveats) && result.caveats.length > 0 && (
-            <Section title="Caveats" items={result.caveats} />
-          )}
-        </div>
-      )}
+      {result !== null && <FormattedAIReport response={result} title="DEI metrics" />}
     </div>
   );
 };
-
-const Section = ({ title, items }) => (
-  <div>
-    <h3 className="font-semibold mb-2">{title}</h3>
-    <ul className="text-sm text-gray-700 list-disc pl-5 space-y-1">
-      {items.map((it, i) => <li key={i}>{typeof it === 'string' ? it : JSON.stringify(it)}</li>)}
-    </ul>
-  </div>
-);
 
 export default DEIMetrics;
